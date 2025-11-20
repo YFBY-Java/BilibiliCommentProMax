@@ -20,6 +20,7 @@ def download_all_comments_serial(Cookie, videoList, UserName):
             results.append(result)
             print(f"✓ 成功下载 {bv} 的评论")
         except Exception as e:
+            print(e)
             print(f"✗ 下载 {bv} 的评论失败: {e}")
             results.append(None)
 

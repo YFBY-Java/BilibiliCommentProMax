@@ -10,8 +10,8 @@ from urllib.parse import quote
 """
 
 Base_Url = 'https://www.bilibili.com/video/'
-# CommentURL = 'https://api.bilibili.com/x/v2/reply/wbi/main'
-CommentURL = 'https://api.bilibili.com/x/v2/reply/main'
+CommentURL = 'https://api.bilibili.com/x/v2/reply/wbi/main'
+# CommentURL = 'https://api.bilibili.com/x/v2/reply/main'
 BV_Name = None
 
 
@@ -76,9 +76,11 @@ def get_comments(pn, oid, headers, csv_writer):
     }
     # 发送请求
     response = requests.get(url=CommentURL, params=data, headers=headers)
+    # 接口 https://api.bilibili.com/x/v2/reply/wbi/main 响应状态码
+    print('接口https://api.bilibili.com/x/v2/reply/wbi/main  响应：', response.status_code)
     # 获取数据
     json_data = response.json()
-    # print(json_data)
+    print(json_data)
     next_page = json_data['data']['cursor']['next']
     is_end = json_data['data']['cursor']['is_end']
     # session_id = json_data['data']['cursor']['session_id']
@@ -136,7 +138,7 @@ def writeComment(json_data, csv_writer):
 
 def download_comment(Cookie, BV, UserName):
     headers = {
-        "Cookie": Cookie,
+        # "Cookie": Cookie,
         # "Referer":
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 Edg/120.0.0.0"
     }
