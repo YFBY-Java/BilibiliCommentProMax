@@ -69,31 +69,51 @@ def requests_nav():
     return data
 
 
-def requests_video(uid, pn):
+def requests_video(uid, pn, cookie):
     with open(f"Code/Video/params.js", 'r', encoding='utf-8') as f:
         JScode = f.read()
         JScode = requests_nav() + '\n' + JScode
         JScode = execjs.compile(JScode)
 
     cookies = {
-    }
 
-    headers = {
-        'authority': 'api.bilibili.com',
-        'accept': '*/*',
-        'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6',
-        'cache-control': 'no-cache',
-        'origin': 'https://space.bilibili.com',
-        'pragma': 'no-cache',
-        'referer': f'https://space.bilibili.com/{uid}/video?tid=0&pn={pn}&keyword=&order=pubdate',
-        'sec-ch-ua': '"Not_A Brand";v="8", "Chromium";v="120", "Microsoft Edge";v="120"',
-        'sec-ch-ua-mobile': '?0',
-        'sec-ch-ua-platform': '"Windows"',
-        'sec-fetch-dest': 'empty',
-        'sec-fetch-mode': 'cors',
-        'sec-fetch-site': 'same-site',
-        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 Edg/120.0.0.0',
     }
+    headers = {}
+    if cookie == "":
+        headers = {
+            'authority': 'api.bilibili.com',
+            'accept': '*/*',
+            'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6',
+            'cache-control': 'no-cache',
+            'origin': 'https://space.bilibili.com',
+            'pragma': 'no-cache',
+            'referer': f'https://space.bilibili.com/{uid}/video?tid=0&pn={pn}&keyword=&order=pubdate',
+            'sec-ch-ua': '"Not_A Brand";v="8", "Chromium";v="120", "Microsoft Edge";v="120"',
+            'sec-ch-ua-mobile': '?0',
+            'sec-ch-ua-platform': '"Windows"',
+            'sec-fetch-dest': 'empty',
+            'sec-fetch-mode': 'cors',
+            'sec-fetch-site': 'same-site',
+            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 Edg/120.0.0.0',
+        }
+    else:
+        headers = {
+            'authority': 'api.bilibili.com',
+            'accept': '*/*',
+            'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6',
+            'cache-control': 'no-cache',
+            'origin': 'https://space.bilibili.com',
+            'pragma': 'no-cache',
+            'referer': f'https://space.bilibili.com/{uid}/video?tid=0&pn={pn}&keyword=&order=pubdate',
+            'sec-ch-ua': '"Not_A Brand";v="8", "Chromium";v="120", "Microsoft Edge";v="120"',
+            'sec-ch-ua-mobile': '?0',
+            'sec-ch-ua-platform': '"Windows"',
+            'sec-fetch-dest': 'empty',
+            'sec-fetch-mode': 'cors',
+            'sec-fetch-site': 'same-site',
+            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 Edg/120.0.0.0',
+            'cookie': cookie
+        }
 
     temp = creat_user()
     t = {

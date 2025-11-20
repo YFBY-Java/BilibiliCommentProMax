@@ -10,7 +10,8 @@ from urllib.parse import quote
 """
 
 Base_Url = 'https://www.bilibili.com/video/'
-CommentURL = 'https://api.bilibili.com/x/v2/reply/wbi/main'
+# CommentURL = 'https://api.bilibili.com/x/v2/reply/wbi/main'
+CommentURL = 'https://api.bilibili.com/x/v2/reply/main'
 BV_Name = None
 
 
@@ -55,6 +56,7 @@ def get_md5(data, oid, date):
     return w_rid
 
 
+# 原方法，会触发风控
 def get_comments(pn, oid, headers, csv_writer):
     # 时间戳
     date = (time.time() * 1000)
@@ -64,7 +66,7 @@ def get_comments(pn, oid, headers, csv_writer):
     data = {
         'oid': oid,
         'type': '1',
-        'mode': '3',
+        'mode': '3',   # 3表示按热度排序，2表示按时间排序
         'pagination_str': pagination_str,
         "plat": '1',
         # 'seek_rpid':'',

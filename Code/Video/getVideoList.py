@@ -3,9 +3,9 @@ import time
 from Code.Video import BaseVideoList
 
 
-def get_VideoList(mid, counter, csv_writer):  # 获取当前页视频列表(BV号)
+def get_VideoList(mid, counter, csv_writer,Cookie):  # 获取当前页视频列表(BV号)
     while True:
-        json_data = BaseVideoList.requests_video(mid,counter)
+        json_data = BaseVideoList.requests_video(mid,counter,Cookie)
         print(json_data)
         code = json_data['code']
         if code == -799:

@@ -3,9 +3,9 @@ import time
 from Code.Video import BaseVideoList
 
 
-def get_VideoPage(mid):  # 获取到视频一共有多少页
+def get_VideoPage(mid,Cookie):  # 获取到视频一共有多少页
     while True:
-        json_data = BaseVideoList.requests_video(mid,1)
+        json_data = BaseVideoList.requests_video(mid,1,Cookie)
         print(json_data)
         if json_data['code'] == -799:
             print("请求过于频繁，程序将沉睡1秒,当前执行方法为——获取视频页数——get_VideoPage")
