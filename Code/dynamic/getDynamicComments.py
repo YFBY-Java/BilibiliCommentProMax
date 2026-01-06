@@ -1,3 +1,5 @@
+import json
+
 import requests
 import csv
 # 导入MD5
@@ -15,11 +17,11 @@ CommentURL = 'https://api.bilibili.com/x/v2/reply/wbi/main'
 BV_Name = None
 
 
-def get_md5(data, oid, date):
+def get_md5(pagination_str, oid, date):
     Zt = [
         "mode=3",  # "mode=3" 表示用"最热评论"排序
         f"oid={oid}",
-        f"pagination_str={quote(data)}",
+        f"pagination_str={quote(pagination_str)}",
         "plat=1",
         "type=1",
         "web_location=1315875",
@@ -36,9 +38,9 @@ def get_md5(data, oid, date):
 
 
 # 原方法，会触发风控
-def get_comments(pn, oid, headers, csv_writer):
+def get_comments(pn, oid, headers):
     # 时间戳
-    date = (time.time() * 1000)
+    date = int(time.time())
     pagination_str = '{"offset":"{\\"type\\":1,\\"direction\\":1,\\"data\\":{\\"pn\\":%s}}"}' % pn
 
     w_rid = get_md5(pagination_str, oid, date)
@@ -48,13 +50,15 @@ def get_comments(pn, oid, headers, csv_writer):
         'mode': '3',   # 3表示按热度排序，2表示按时间排序
         'pagination_str': pagination_str,
         "plat": '1',
-        # 'seek_rpid':'',
+        'seek_rpid':'',
         'web_location': '1315875',
         'w_rid': w_rid,
         'wts': date
     }
     # 发送请求
     response = requests.get(url=CommentURL, params=data, headers=headers)
+    # 打印出完整请求
+    print(response.request.url)
     # 接口 https://api.bilibili.com/x/v2/reply/wbi/main 响应状态码
     print('接口https://api.bilibili.com/x/v2/reply/wbi/main  响应：', response.status_code)
     # 获取数据
@@ -67,86 +71,67 @@ def get_comments(pn, oid, headers, csv_writer):
         'is_end': is_end,
         'next_page': next_page
     }
-    writeComment(json_data, csv_writer)
+
     return data
 
 
-def writeComment(json_data, csv_writer):
-    # 提取数据所在的列表
-    replies_ = json_data['data']['replies']
-    for index in replies_:
-        # 评论
-        message_ = index['content']['message'].replace("\n", ",")
-        name = index['member']['uname']  # 昵称
-        mid = str(index['member']['mid'])  # uid
-        rank = index['member']['rank']  # 用户权重，一般均为10000 (年度大会员也为10000)
-        """
-            B站以前不显示ip,老评论没有ip,必须对ip进行处理，如果不处理，会出现   KeyError: 'location' 的错误 
-        """
-        if 'reply_control' in index and 'location' in index['reply_control']:
-            location = index['reply_control']['location']
-            # 进行处理
-        else:
-            # 进行处理，因为找不到reply_control键或者location键
-            location = "无IP"
-
-        # location = index['reply_control']['location']  # ip
-        location = location.replace("IP属地：", "")
-        sex = index['member']['sex']
-        level_info = index['member']['level_info']['current_level']  # 等级
-        decorationName = index['member']['pendant']['name']  # 装扮名
-        like = index['like']
-        fans_detail = index['member']['fans_detail']
-        if fans_detail is not None:
-            fans_detail = index['member']['fans_detail']['level']
-        dit = {
-            '昵称': name,
-            '性别': sex,
-            'IP': location,
-            'UID': mid,
-            '等级': level_info,
-            '装扮': decorationName,
-            '用户权重': rank,
-            '获赞数': like,
-            '粉丝团等级': fans_detail,
-            '评论': message_
-        }
-
-        csv_writer.writerow(dit)
 
 
-def download_comment(Cookie, BV, UserName):
-    headers = {
-        # "Cookie": Cookie,
-        # "Referer":
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 Edg/120.0.0.0"
+
+def get_comments_TurnPage(Cookie=None, type_code=None, oid=None, sort=0, nohot=0, ps=20, pn=1):
+    """
+    获取评论区明细_翻页加载
+    Args:
+        access_key (str, optional): APP 登录 Token。如果使用 APP 方式认证则必要。
+        type_code (int): 评论区类型代码。必要。
+        oid (int): 目标评论区 id。必要。
+        sort (int, optional): 排序方式，默认为0。
+            0：按时间
+            1：按点赞数
+            2：按回复数
+        nohot (int, optional): 是否不显示热评，默认为0。
+            1：不显示
+            0：显示
+        ps (int, optional): 每页项数，默认为20。定义域：1-20
+        pn (int, optional): 页码，默认为1。
+
+    Returns:
+        dict: API响应的 JSON 数据。
+    """
+    url = "https://api.bilibili.com/x/v2/reply"
+
+    params = {
+        "type": type_code,
+        "oid": oid,
+        "sort": sort,
+        "nohot": nohot,
+        "ps": ps,
+        "pn": pn
     }
-    data = getVideoInformation(BV, headers)
-    BV_Name = data['BV_Name']
-    BV_oid = data['BV_aid']
-    file_name = BV + ".csv"
 
-    with open(f"资源列表/评论列表/{UserName}/{file_name}", mode='w', encoding='gbk', newline='', errors='ignore') as f:
-        # 在这里操作文件
-        csv_writer = csv.DictWriter(f, fieldnames=[
-            '昵称',
-            '性别',
-            'IP',
-            'UID',
-            '等级',
-            '装扮',
-            '用户权重',
-            '获赞数',
-            '粉丝团等级',
-            '评论'
-        ], quoting=csv.QUOTE_ALL)  # fieldnames 指定csv文件中的字段名 即表头
-        csv_writer.writeheader()  # writeheader() 写入表头
+    # 注意：如果使用 Cookie (SESSDATA) 认证，需要在 headers 中添加 Cookie
+    headers = {
+        "Cookie": Cookie,
+        "accept": "*/*",
+        "accept-language": "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
+        "origin": "https://www.bilibili.com",
+        "priority": "u=1, i",
+        "referer": "https://www.bilibili.com/opus/1152497782492233729?spm_id_from=333.1387.0.0",
+        "sec-ch-ua": '"Microsoft Edge";v="143", "Chromium";v="143", "Not A(Brand";v="24"',
+        "sec-ch-ua-mobile": "?0",
+        "sec-ch-ua-platform": '"Windows"',
+        "sec-fetch-dest": "empty",
+        "sec-fetch-mode": "cors",
+        "sec-fetch-site": "same-site",
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36 Edg/143.0.0.0"
+    }
 
-        pn = 1
-        while True:
-            data = get_comments(pn, BV_oid, headers, csv_writer)
-            pn = pn + 1
-            is_end = data['is_end']
-            if is_end is True:
-                break
-    print(f"视频《{BV_Name}》的评论下载完毕!")
+    response = requests.get(url, params=params, headers=headers)
+    response.encoding = 'utf-8'  # 请求后，设置编码
+    json_data = response.json()['data']
+    # json_string = json.dumps(json_data, ensure_ascii=False, indent=2)
+    # print(json_string)
+    return json_data
+
+
+
