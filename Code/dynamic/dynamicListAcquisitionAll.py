@@ -11,6 +11,7 @@ import json
 # 接口地址
 DynamicURL = 'https://api.bilibili.com/x/polymer/web-dynamic/v1/feed/space'
 
+
 def get_dynamic_list(host_mid, offset, headers):
     """
     获取用户空间动态
@@ -57,8 +58,7 @@ def main():
     # host_mid = "436175352"
     host_mid = "3546622923377024"
 
-    cookies_str = ""
-
+    cookies_str = "enable_web_push=DISABLE; buvid_fp_plain=undefined; enable_feed_channel=ENABLE; buvid3=55B47D9F-0FE7-EB4E-D7DF-ECCBD88F224C45015infoc; b_nut=1742286045; _uuid=7106268EE-E23D-3B610-87FC-EC344F6585C442602infoc; hit-dyn-v2=1; fingerprint=ad2c19aeebce81ba025910181eca5a37; buvid_fp=ad2c19aeebce81ba025910181eca5a37; _qimei_uuid42=19705002739100cd7f73bc24bee6750d7906cdd898; _qimei_i_3=43c26581c60b03dbc593fc30538476b5f6bff1f3470805d0e5897c5e73c1763f373035943c89e29ab7a8; header_theme_version=OPEN; theme-tip-show=SHOWED; theme-avatar-tip-show=SHOWED; CURRENT_QUALITY=80; rpdid=|(J~kJu)|mu~0J'u~lJ~ukYuR; dy_spec_agreed=1; LIVE_BUVID=AUTO5717540510998206; _qimei_h38=5325990e7f73bc24bee6750d0200000571980d; buvid4=17413F75-C142-3F4B-BDA7-AD0FE38A447617347-024031215-zc+oy34FAZz4XtTqc3fRtA%3D%3D; theme-switch-show=SHOWED; DedeUserID=3546662442109032; DedeUserID__ckMd5=84a1ca737a6520b1; PVID=5; home_feed_column=5; browser_resolution=1545-819; _qimei_fingerprint=634953f821cbb95915b88ac3a1e27b85; bp_t_offset_3546662442109032=1151349258813702144; bili_ticket=eyJhbGciOiJIUzI1NiIsImtpZCI6InMwMyIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3Njc4ODEwMzcsImlhdCI6MTc2NzYyMTc3NywicGx0IjotMX0.Sm090gWO_s2Q5cHC8bTNqJQyzDcAbYaY3v76rh-gDP8; bili_ticket_expires=1767880977; SESSDATA=95782f9b%2C1783173837%2C9e0c8%2A11CjDOoV8VcJAN1ClPTb4f1YpT6P4IjwBRv5IJsYnGPPZKk8ZJzZUs_hSqnCeRrnF_v4oSVkE5SGFPZkVBNFVTQXlCSWVlWi1zRlZaOHlJdlBaUWZBbzRQeGEtREZEWDBNRDVOTlVlaGdTa0ozOEdrWmE4SlR6RDZxMXFSLWxDbEVXZUJvRzhkS3ZnIIEC; bili_jct=6d6689573bb069f44de9f2148d5fa33c; sid=802orv83; CURRENT_FNVAL=4048; b_lsid=67418D7B_19B98E542D7; _qimei_i_1=5bf34d87965855d2c897ab370d8370b2a4eca0a3470e0585b18f7c582493206c616332923980eadc829cff8e"
 
     headers = {
         "accept": "*/*",
@@ -108,12 +108,7 @@ def main():
         offset = next_offset
         time.sleep(0.5)  # 礼貌性延迟，避免触发风控
 
-    # ====== 保存全部结果 ======
-    output_path = r"E:\PythonXiangmu\jsonPy\all_dynamics.json"
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    with open(output_path, "w", encoding="utf-8") as f:
-        json.dump(all_items, f, ensure_ascii=False, indent=2)
-    print(f"\n🎉 共抓取 {len(all_items)} 条动态，已保存至: {output_path}")
+
 
 
 if __name__ == '__main__':
