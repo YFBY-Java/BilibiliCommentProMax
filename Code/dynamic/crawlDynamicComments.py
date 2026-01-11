@@ -5,7 +5,6 @@ import hashlib
 import urllib.parse
 import requests
 
-
 # 接口地址
 DynamicURL = 'https://api.bilibili.com/x/polymer/web-dynamic/v1/feed/space'
 COMMENT_URL = "https://api.bilibili.com/x/v2/reply/wbi/main"
@@ -22,6 +21,7 @@ def get_wbi_keys(headers):
     sub_key = sub_url.split('/')[-1].split('.')[0]
     return img_key, sub_key
 
+
 def getMixinKey(orig: str):
     mixin_key_enc_tab = [
         46, 47, 18, 2, 53, 8, 23, 32, 15, 50, 10, 31, 58, 3, 45, 35, 27, 43, 5, 49,
@@ -30,6 +30,7 @@ def getMixinKey(orig: str):
         36, 20, 34, 44, 52
     ]
     return ''.join([orig[i] for i in mixin_key_enc_tab[:32]])
+
 
 def enc_wbi(params: dict, img_key: str, sub_key: str):
     mixin_key = getMixinKey(img_key + sub_key)
@@ -82,7 +83,7 @@ def get_dynamic_list(host_mid, offset, headers):
     return json_data
 
 
-def get_dynamic_all(host_mid,cookies):
+def get_dynamic_all(host_mid, cookies):
     headers = {
         "accept": "*/*",
         "accept-language": "zh-CN,zh;q=0.9",
@@ -131,10 +132,10 @@ def get_dynamic_all(host_mid,cookies):
     return all_items
 
 
-#------------------------------------------------------------------
+# ------------------------------------------------------------------
 # 评论
-#------------------------------------------------------------------
-def fetch_all_comments(oid,cookie,dynamic_id=None):
+# ------------------------------------------------------------------
+def fetch_all_comments(oid, cookie, dynamic_id=None):
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
         "Referer": f"https://t.bilibili.com/{oid}",
@@ -145,6 +146,9 @@ def fetch_all_comments(oid,cookie,dynamic_id=None):
     offset = ""  # 字符串
     all_comments = []
     page = 0
+
+    # 如果提供了 dynamic_id，就构造 dynamic_url；否则为 None 或空字符串
+    dynamic_url = f"https://www.bilibili.com/opus/{dynamic_id}" if dynamic_id else ""
 
     while True:
         page += 1
@@ -212,7 +216,8 @@ def fetch_all_comments(oid,cookie,dynamic_id=None):
                 "like_count": reply.get("like", 0),
                 "ctime": reply.get("ctime"),
                 "time_desc": time_desc,
-                "location": location_province
+                "location": location_province,
+                "dynamic_url": dynamic_url
             }
             all_comments.append(comment)
         # print(all_comments)
@@ -230,7 +235,6 @@ def fetch_all_comments(oid,cookie,dynamic_id=None):
         time.sleep(0.5)
 
     return all_comments
-
 
 
 if __name__ == "__main__":
@@ -262,12 +266,28 @@ if __name__ == "__main__":
         # 动态评论区 id
         comment_id_str = r.get("comment_id_str")
 
-        comments = fetch_all_comments(oid=comment_id_str, cookie=cookies,dynamic_id=dynamic_id)
+        comments = fetch_all_comments(oid=comment_id_str, cookie=cookies, dynamic_id=dynamic_id)
         # print(comments)
         # 统计一下这个动态的评论数 （comments元素个数）
         comments_count = len(comments)
         print(comments_count)
 
 
+
+        """
+            {
+              "comment_id": "评论的唯一ID（字符串格式）",
+              "content": "评论正文内容",
+              "user_uid": "评论发布者的用户UID（B站用户ID）",
+              "user_uname": "评论发布者的昵称",
+              "user_level": "评论发布者当前的B站等级（1～6）",
+              "user_avatar": "评论发布者的头像图片URL",
+              "like_count": "该评论获得的点赞数",
+              "ctime": "评论发布时间戳（Unix秒级时间戳）",
+              "time_desc": "评论发布时间的人性化描述（如“4小时前发布”）",
+              "location": "评论发布者的IP属地（如“重庆”），若无则为空字符串",
+              "dynamic_url": "该评论所属动态的完整网页链接（https://www.bilibili.com/opus/xxx）"
+            }
+        """
 
 
